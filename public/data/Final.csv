@@ -1,0 +1,64 @@
+﻿Program ID,EKU Program Code,College,Program Title,Review Type,Metrics Met,Degree Designation,CIP,100% F2F,100% Distance Learning,F2F and Distance Learning,Review Year,1920,20-21,21-22,22-23,Fall 2020,Fall 2021,Fall 2022,Fall 2023,Level,Enrollment Avg % Change,Enrollment Minimum,Degree Avg % Change,Degree Minimum,Ratio of 20-21 to Fall 2021,Ratio of 21-22 to Fall 2022,Ratio of 22-23 to Fall 2023,Average Ratio,Ratio Met,Enroll Trend,Enroll Min,DA Trend,DA Min,Ratio
+15234,BS_AVSC,"Science, Technology, Engineering, and Mathematics",Animal and Veterinary Sciences,Streamlined Review,2,BS,1.0301,Y,N,N,2024-2025,,0,2,6,0,29,87,102,UG,109%,Yes,0%,No,0%,2%,6%,3%,No,1,1,0,0,0
+15347,CERTU_ENVD,"Science, Technology, Engineering, and Mathematics",Environmental Education,Full Review,0,GCERT1,3.0103,Y,N,N,2024-2025,,0,0,0,0,0,0,1,GR,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15348,CERTU_ENVE,"Science, Technology, Engineering, and Mathematics",Environmental Education,Full Review,1,UCERT6,3.0103,Y,N,N,2024-2025,,0,0,0,0,0,4,13,UG,0%,Yes,0%,No,0%,0%,0%,0%,No,0,1,0,0,0
+15403,CERTU_SUST,Education and Applied Human Sciences,Sustainable Hospitality,Full Review,0,UCERT6,3.0207,N,Y,N,2024-2025,,0,0,0,0,0,0,1,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15783,CERTU_AAAS,"Letters, Arts, and Social Sciences",African and African American Studies,Full Review,0,UCERT6,5.0201,Y,Y,Y,2024-2025,,0,0,0,0,0,0,2,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+14643,CERTU_COMS,"Letters, Arts, and Social Sciences",Communication Studies,Full Review,0,UCERT2,9.0101,Y,Y,Y,2024-2025,,1,0,0,1,0,3,3,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15795,CERTU_SPCM,"Letters, Arts, and Social Sciences",Sports Communication,Full Review,0,UCERT6,9.0702,Y,Y,Y,2024-2025,,0,0,0,0,0,2,5,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15796,CERTU_CMWP,"Letters, Arts, and Social Sciences",Communication in the Workplace,Full Review,0,UCERT6,9.0901,Y,Y,Y,2024-2025,,0,0,1,0,0,3,9,UG,0%,No,0%,No,0%,0%,11%,4%,No,0,0,0,0,0
+15809,CERTU_AIDA,"Science, Technology, Engineering, and Mathematics",Artificial Intelligence in Data Science,Full Review,1,GCERT1,11.0101,Y,Y,Y,2024-2025,,0,0,0,0,0,0,34,GR,0%,Yes,0%,No,0%,0%,0%,0%,No,0,1,0,0,0
+15810,CERTU_CSDG,"Science, Technology, Engineering, and Mathematics",Cyber Security and Digital Forensics,Full Review,0,GCERT1,11.0101,Y,Y,Y,2024-2025,,0,0,1,0,0,0,8,GR,0%,No,0%,No,0%,0%,13%,4%,No,0,0,0,0,0
+15811,CERTU_GAMD,"Science, Technology, Engineering, and Mathematics",Game Design,Full Review,0,GCERT1,11.0101,Y,Y,Y,2024-2025,,0,0,0,0,0,1,4,GR,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15233,BA_ENHT,"Letters, Arts, and Social Sciences",English & History Teaching,Full Review,1,BA,13.0301,Y,N,N,2024-2025,,0,1,0,1,10,18,19,UG,43%,No,0%,No,0%,6%,0%,2%,No,1,0,0,0,0
+15397,MS_IDLT,"Letters, Arts, and Social Sciences",Instructional Design and Learning Technology,Full Review,1,MS,13.0501,N,Y,N,2024-2025,,0,0,1,0,11,25,25,GR,64%,No,0%,No,0%,0%,4%,1%,No,1,0,0,0,0
+15789,CERTU_OLD,"Letters, Arts, and Social Sciences",Online Learning Design,Full Review,1,GCERT1,13.0501,N,Y,N,2024-2025,,0,0,0,0,0,0,17,GR,0%,Yes,0%,No,0%,0%,0%,0%,No,0,1,0,0,0
+15790,CERTU_UXD,"Letters, Arts, and Social Sciences",User Experience Design,Full Review,0,GCERT1,13.0501,N,Y,N,2024-2025,,0,0,2,0,0,1,6,GR,0%,No,0%,No,0%,0%,33%,11%,No,0,0,0,0,0
+15801,CERTU_OCCS,"Justice, Safety, and Military Science",Occupational Safety,Streamlined Review,2,GCERT1,15.0703,Y,Y,Y,2024-2025,,0,0,22,0,0,44,72,GR,0%,Yes,0%,Yes,0%,0%,31%,10%,No,0,1,0,1,0
+1480,CERTU_LNDS,"Justice, Safety, and Military Science",Land Surveying,Full Review,1,UCERT6,15.1102,Y,N,N,2024-2025,,0,0,2,0,2,5,7,UG,95%,No,0%,No,0%,0%,29%,10%,No,1,0,0,0,0
+15791,CERTU_CNET,"Science, Technology, Engineering, and Mathematics",Cyber Systems & Network Security,Full Review,0,UCERT6,15.1299,Y,Y,Y,2024-2025,,0,0,0,0,0,0,1,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+1546,CERTU_PASC,"Letters, Arts, and Social Sciences",Paralegal Science,Expedited Review,4,UCERT2,22.0302,Y,Y,Y,2024-2025,9,19,8,7,26,26,23,34,UG,18%,Yes,-35%,Yes,73%,35%,21%,43%,Yes,1,1,0,1,1
+14876,CERTU_ADSC,"Science, Technology, Engineering, and Mathematics",Applied Data Science,Full Review,0,UCERT2,27.9999,Y,N,N,2024-2025,,0,0,2,0,3,3,3,UG,0%,No,0%,No,0%,0%,67%,22%,No,0,0,0,0,0
+14061,CERTU_INST,"Justice, Safety, and Military Science",Intelligence Studies,Streamlined Review,3,UCERT6,29.0201,Y,Y,N,2024-2025,,0,7,14,0,19,35,47,UG,59%,Yes,0%,Yes,0%,20%,30%,17%,No,1,1,0,1,0
+15246,CERTU_VETS,"Justice, Safety, and Military Science",Veterans Studies,Streamlined Review,3,UCERT6,30,Y,Y,Y,2024-2025,,2,4,7,6,20,20,17,UG,-8%,Yes,88%,Yes,10%,20%,41%,24%,No,0,1,1,1,0
+15797,CERTU_DRS,"Letters, Arts, and Social Sciences",Dispute Resolution,Full Review,0,UCERT6,30.2801,Y,Y,Y,2024-2025,,0,0,1,0,0,1,7,UG,0%,No,0%,No,0%,0%,14%,5%,No,0,0,0,0,0
+14985,CERTU_APBA,"Letters, Arts, and Social Sciences",Applied Behavior Analysis,Streamlined Review,3,GCERT2,42.2814,N,Y,N,2024-2025,,4,3,2,7,6,16,15,GR,80%,Yes,-29%,No,67%,19%,13%,33%,Yes,1,1,0,0,1
+1553,CERTU_ASPD,"Letters, Arts, and Social Sciences",Autism Spectrum Disorders,Expedited Review,4,GCERT1,42.9999,Y,N,N,2024-2025,8,8,13,11,18,29,22,15,GR,-28%,Yes,24%,Yes,28%,59%,73%,53%,Yes,0,1,1,1,1
+10640,CERTU_COIS,"Justice, Safety, and Military Science",Correctional Intervention Strategies,Streamlined Review,3,UCERT6,43.0102,N,Y,Y,2024-2025,,0,2,12,0,9,21,36,UG,102%,Yes,0%,Yes,0%,10%,33%,14%,No,1,1,0,1,0
+10641,CERTU_SEMA,"Justice, Safety, and Military Science",Security Management,Streamlined Review,3,UCERT6,43.0112,Y,Y,N,2024-2025,,0,2,9,0,9,18,26,UG,72%,Yes,0%,Yes,0%,11%,35%,15%,No,1,1,0,1,0
+10634,CERTU_INFP,"Justice, Safety, and Military Science",Industrial Fire Protection,Full Review,1,UCERT2,43.0201,Y,Y,N,2024-2025,,0,0,1,0,2,4,9,UG,113%,No,0%,No,0%,0%,11%,4%,No,1,0,0,0,0
+1486,CERTU_HOMS,"Justice, Safety, and Military Science",Homeland Security,Full Review,1,UCERT6,43.0301,Y,Y,N,2024-2025,,0,1,1,0,1,4,4,UG,150%,No,0%,No,0%,25%,25%,17%,No,1,0,0,0,0
+15786,CERTU_EMGD,"Justice, Safety, and Military Science",Emergency Management & Disaster Resilience,Streamlined Review,2,GCERT1,43.0302,Y,Y,Y,2024-2025,,0,0,6,0,0,13,39,GR,0%,Yes,0%,Yes,0%,0%,15%,5%,No,0,1,0,1,0
+15799,CERTU_CASM,"Justice, Safety, and Military Science",Cyber and Security Management,Full Review,0,GCERT1,43.0302,Y,Y,Y,2024-2025,,0,0,0,0,0,0,6,GR,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15784,CERTU_APPP,"Letters, Arts, and Social Sciences",Applied Policy,Full Review,1,GCERT1,44.0401,Y,Y,Y,2024-2025,,0,0,1,0,0,1,26,GR,0%,Yes,0%,No,0%,0%,4%,1%,No,0,1,0,0,0
+15785,CERTU_COMD,"Letters, Arts, and Social Sciences",Community Development,Full Review,1,GCERT1,44.0401,Y,Y,Y,2024-2025,,0,0,1,0,0,0,12,GR,0%,Yes,0%,No,0%,0%,8%,3%,No,0,1,0,0,0
+15787,CERTU_NPMG,"Letters, Arts, and Social Sciences",Nonprofit Management,Full Review,0,GCERT1,44.0401,Y,Y,Y,2024-2025,,0,0,1,0,0,0,9,GR,0%,No,0%,No,0%,0%,11%,4%,No,0,0,0,0,0
+14993,MSW_SCWK,"Letters, Arts, and Social Sciences",Social Work,Streamlined Review,3,MSW,44.0701,N,Y,N,2024-2025,,0,13,18,22,73,78,97,GR,16%,Yes,0%,Yes,0%,17%,19%,12%,No,1,1,0,1,0
+15228,CERTU_ADIN,"Letters, Arts, and Social Sciences",Addictions Intervention,Full Review,1,GCERT1,44.0701,N,Y,N,2024-2025,,0,1,3,3,6,7,5,GR,-6%,No,0%,Yes,0%,14%,60%,25%,No,0,0,0,1,0
+15229,CERTU_CHFM,"Letters, Arts, and Social Sciences",Child & Family Services,Full Review,1,GCERT1,44.0701,N,Y,N,2024-2025,,0,7,2,8,18,12,14,GR,-8%,Yes,0%,No,0%,58%,14%,24%,No,0,1,0,0,0
+15230,CERTU_LEMA,"Letters, Arts, and Social Sciences",Leadership & Management,Full Review,0,GCERT1,44.0701,N,Y,N,2024-2025,,0,1,2,3,6,7,6,GR,1%,No,0%,No,0%,14%,33%,16%,No,0,0,0,0,0
+15231,CERTU_MENH,"Letters, Arts, and Social Sciences",Mental Health,Streamlined Review,3,GCERT1,44.0701,N,Y,N,2024-2025,,0,2,6,6,35,39,41,GR,8%,Yes,0%,Yes,0%,5%,15%,7%,No,1,1,0,1,0
+15232,CERTU_SAJS,"Letters, Arts, and Social Sciences",Social Advocacy & Justice,Streamlined Review,2,GCERT1,44.0701,N,Y,N,2024-2025,,0,2,5,1,6,14,8,GR,45%,No,0%,Yes,0%,14%,63%,26%,No,1,0,0,1,0
+10607,CERTU_JUJU,"Justice, Safety, and Military Science",Juvenile Justice,Full Review,1,UCERT6,44.0702,N,Y,N,2024-2025,,0,0,0,0,0,0,24,UG,0%,Yes,0%,No,0%,0%,0%,0%,No,0,1,0,0,0
+10277,CERTU_GINS,"Science, Technology, Engineering, and Mathematics",Geographic Information Systems,Streamlined Review,3,UCERT6,45.0702,Y,N,N,2024-2025,,0,1,8,0,6,25,40,UG,188%,Yes,0%,Yes,0%,4%,20%,8%,No,1,1,0,1,0
+15798,CERTU_CONS,"Justice, Safety, and Military Science",Construction Safety,Full Review,1,GCERT1,46,Y,Y,Y,2024-2025,,0,0,0,0,0,8,13,GR,0%,Yes,0%,No,0%,0%,0%,0%,No,0,1,0,0,0
+10276,CERTU_INDH,Health Sciences,Industrial Hygiene,Streamlined Review,3,GCERT1,51.2206,Y,N,N,2024-2025,3,1,2,5,5,8,5,3,GR,-39%,No,125%,Yes,13%,40%,167%,73%,Yes,0,0,1,1,1
+10611,CERTUM_FNPR,Health Sciences,Family Nurse Practitioner,Streamlined Review,3,GCERT2,51.3805,Y,Y,Y,2024-2025,5,3,1,0,6,4,3,10,GR,104%,Yes,-83%,No,75%,33%,0%,36%,Yes,1,1,0,0,1
+10609,CERTUM_PMNP,Health Sciences,Psychiatric Mental Health Nurse Practitioner,Streamlined Review,2,GCERT2,51.381,Y,Y,Y,2024-2025,4,11,12,6,18,16,11,9,GR,-25%,No,-20%,Yes,69%,109%,67%,82%,Yes,0,0,0,1,1
+15794,CERTU_FUBU,Business,Functions of Business,Full Review,0,GCERT1,52.0101,Y,Y,N,2024-2025,,0,0,0,0,0,0,1,GR,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15802,CERTU_SAFL,"Justice, Safety, and Military Science",Safety Leadership,Streamlined Review,2,GCERT1,52.0101,Y,Y,Y,2024-2025,,0,0,10,0,0,23,47,GR,0%,Yes,0%,Yes,0%,0%,21%,7%,No,0,1,0,1,0
+15793,CERTU_GLSC,Business,Global Supply Chain Management,Streamlined Review,2,UCERT6,52.0203,Y,Y,N,2024-2025,,0,0,8,0,0,12,19,UG,0%,Yes,0%,Yes,0%,0%,42%,14%,No,0,1,0,1,0
+1552,CERTU_ACNT,Business,Accounting,Streamlined Review,2,UCERT2,52.0301,Y,Y,N,2024-2025,,0,0,2,0,8,17,24,UG,77%,Yes,0%,No,0%,0%,8%,3%,No,1,1,0,0,0
+15792,CERTU_BFSR,Business,Banking and Financial Services,Full Review,0,UCERT6,52.0803,Y,Y,N,2024-2025,,0,0,0,0,0,2,7,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+16074,CERTU_FTAC,Business,Financial Technology and Cybercrime,Full Review,1,UCERT6,52.0803,Y,Y,N,2024-2025,,0,0,0,0,0,0,17,UG,0%,Yes,0%,No,0%,0%,0%,0%,No,0,1,0,0,0
+15812,CERTU_FNLI,Business,Financial Literacy,Full Review,1,UCERT6,52.0804,Y,Y,N,2024-2025,,0,0,2,0,0,1,18,UG,0%,Yes,0%,No,0%,0%,11%,4%,No,0,1,0,0,0
+15398,BS_GHTO,Education and Applied Human Sciences,Global Hospitality and Tourism,Full Review,0,BS,52.0901,N,Y,N,2024-2025,,0,0,0,0,0,14,21,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15404,CERTU_GAST,Education and Applied Human Sciences,Gastronomic Tourism,Full Review,0,UCERT6,52.0901,N,Y,N,2024-2025,,0,0,0,0,0,3,9,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15641,CERTU_CRPC,Business,Corporate Communications,Full Review,1,UCERT6,52.1401,Y,N,N,2024-2025,,0,0,1,0,0,3,13,UG,0%,Yes,0%,No,0%,0%,8%,3%,No,0,1,0,0,0
+15642,CERTU_MRAN,Business,Marketing Research and Analytics,Full Review,0,UCERT6,52.1401,Y,N,N,2024-2025,,0,0,0,0,0,0,7,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15643,CERTU_SALS,Business,Sales,Streamlined Review,2,UCERT6,52.1401,Y,N,N,2024-2025,,0,0,6,0,0,10,24,UG,0%,Yes,0%,Yes,0%,0%,25%,8%,No,0,1,0,1,0
+,,Honors,Honors Program,Full Review,0,,,,,,2024-2025,,0,0,0,0,0,0,0,,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+16073,CERTU_COLE,"Justice, Safety, and Military Science",Conservation Law Enforcement,Full Review,0,UCERT6,3.0208,Y,Y,Y,2024-2025,,0,0,0,0,0,0,0,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+16070,CERTU_FASE,Education and Applied Human Sciences,Family Services,Full Review,0,UCERT6,19.0707,Y,Y,Y,2024-2025,,0,0,0,0,0,0,0,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+15440,CERTU_FRMS,"Science, Technology, Engineering, and Mathematics",Fermentation Science,Full Review,0,UDIP5,41.0101,Y,N,N,2024-2025,,0,0,0,0,0,0,0,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
+16072,CERTU_WIFI,"Justice, Safety, and Military Science",Wildland Firefighting,Full Review,0,UCERT6,43.0206,Y,Y,Y,2024-2025,,0,0,0,0,0,0,0,UG,0%,No,0%,No,0%,0%,0%,0%,No,0,0,0,0,0
