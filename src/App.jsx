@@ -108,7 +108,8 @@ const isMetricColumn = (field) =>
   !isRatioColumn(field) && !fieldsRanked.includes(field);
 
 const isRatioColumn = (field) =>
-  field.toLowerCase().split(" ").includes("ratio");
+  field.toLowerCase().split(" ").includes("ratio") &&
+  field.toLowerCase() !== "ratio";
 
 const fieldsRanked = [
   "Program Title",
