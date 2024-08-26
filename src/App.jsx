@@ -8,27 +8,42 @@ import { isStringNumeric } from "./isNumeric";
 import { usePromise } from "./usePromise";
 
 const helpers = {
-  filterColumnDefs: ({ field }) => !["Fall 2020", "1920"].includes(field),
+  headerValueGetter: ({ colDef: { field } }) => {
+    if (field.startsWith("Fall 202")) return `${field} Enrollment`;
+
+    if (field === "Metrics Met") return "Metrics Total";
+
+    if (["20-21", "21-22", "22-23"].includes(field)) {
+      return `${field} Degrees`;
+    }
+
+    return field;
+  },
+  valueGetter: ({ colDef: { field }, data }) => {
+    if (field === "Review Type" && data["Program Title"] === "Social Work") {
+      return "Expedited Review";
+    }
+    return data[field];
+  },
+  filterColumnDefs: ({ field }) =>
+    !["Review Year", "Fall 2020", "1920"].includes(field),
+  defaultSort: (field) => (field === "Program Title" ? "asc" : null),
+  filterRowData: (row) => row["Program Title"] !== "Honors Program",
   leftAlignedNumericColumns: ["Program ID", "CIP"],
   promise: csv("data/Final.csv"),
   pinnedField: "Program Title",
 };
 
-const { leftAlignedNumericColumns, filterColumnDefs, pinnedField, promise } =
-  helpers;
-
-/*
-- if number (not program id || cip) || percentage,
-- type is rightAligned
-
-- sort review type, metrics met, -> rest
-
-- let bethany know we can make any data changes
-
-- make sure you fix vite config
-
-- add notes/link to "on off dashboard" asana task
-*/
+const {
+  leftAlignedNumericColumns,
+  headerValueGetter,
+  filterColumnDefs,
+  filterRowData,
+  pinnedField,
+  valueGetter,
+  defaultSort,
+  promise,
+} = helpers;
 
 const stringToNumber = (string = "") => Number(string);
 
@@ -81,21 +96,52 @@ const getTypes = (rowData, typeEvaluator = (value) => typeof value) => {
   );
 };
 
-const fieldsRanked = ["Program Title", "Review Type", "Metrics Met"];
+const replaceItem = (array, oldItem, newItem) => {
+  const index = array.indexOf(oldItem);
 
-const evaluateFieldRank = (field) =>
-  fieldsRanked.includes(field)
-    ? fieldsRanked.indexOf(field)
-    : Number.MAX_SAFE_INTEGER;
+  if (index !== -1) {
+    return [...array.slice(0, index), newItem, ...array.slice(index + 1)];
+  }
+};
 
-const sortColumnDefs = ({ field: fieldA }, { field: fieldB }) =>
-  evaluateFieldRank(fieldA) - evaluateFieldRank(fieldB);
+const isMetricColumn = (field) =>
+  !isRatioColumn(field) && !fieldsRanked.includes(field);
+
+const isRatioColumn = (field) =>
+  field.toLowerCase().split(" ").includes("ratio");
+
+const fieldsRanked = [
+  "Program Title",
+  "Degree Designation",
+  "Review Type",
+  "Metrics Met",
+  "College",
+  "Program ID",
+  "EKU Program Code",
+  "CIP",
+  "Level",
+  "METRIC COLUMNS",
+  "Fall 2021",
+  "Fall 2022",
+  "Fall 2023",
+  "Enrollment Avg % Change",
+  "Enrollment Minimum",
+  "20-21",
+  "21-22",
+  "22-23",
+  "Degree Avg % Change",
+  "Degree Minimum",
+  "RATIO COLUMNS",
+  "100% F2F",
+  "100% Distance Learning",
+  "F2F and Distance Learning",
+];
 
 function App() {
   const rowData = usePromise(promise);
 
   const rowDataCorrected = useMemo(
-    () => parseNumericStrings(rowData),
+    () => parseNumericStrings(rowData).filter(filterRowData),
     [rowData]
   );
 
@@ -104,20 +150,63 @@ function App() {
     [rowDataCorrected]
   );
 
-  const columnDefs = useMemo(
-    () =>
-      Object.entries(types)
-        .map(([field, type]) => ({
-          type: type === "number" ? "rightAligned" : null,
-          lockPosition: field === pinnedField,
-          pinned: field === pinnedField,
-          lockVisible: true,
-          field,
-        }))
-        .filter(filterColumnDefs)
-        .sort(sortColumnDefs),
-    [types]
-  );
+  const columnDefs = useMemo(() => {
+    const easyLeftAligned = new Set([
+      "Program Title",
+      "Degree Designation",
+      "Review Type",
+      "College",
+      "Program ID",
+      "EKU Program Code",
+      "CIP",
+      "Level",
+    ]);
+
+    const unsortedColumnDefs = Object.entries(types)
+      .map(([field]) => ({
+        type: !easyLeftAligned.has(field) ? "rightAligned" : null,
+        pinned: field === pinnedField,
+        sort: defaultSort(field),
+        lockPosition: true,
+        lockVisible: true,
+        headerValueGetter,
+        valueGetter,
+        field,
+      }))
+      .filter(filterColumnDefs);
+
+    const ratioColumns = unsortedColumnDefs
+      .filter(({ field }) => isRatioColumn(field))
+      .map(({ field }) => field);
+
+    const metricColumns = unsortedColumnDefs
+      .filter(({ field }) => isMetricColumn(field))
+      .map(({ field }) => field);
+
+    const includesRatioColumns = replaceItem(
+      fieldsRanked,
+      "RATIO COLUMNS",
+      ratioColumns
+    );
+
+    const includesMetricColumns = replaceItem(
+      includesRatioColumns,
+      "METRIC COLUMNS",
+      metricColumns
+    );
+
+    const fieldsReranked = includesMetricColumns.flat();
+
+    const evaluateFieldRank = (field) =>
+      fieldsReranked.includes(field)
+        ? fieldsReranked.indexOf(field)
+        : Number.MAX_SAFE_INTEGER;
+
+    const sortColumnDefs = ({ field: fieldA }, { field: fieldB }) =>
+      evaluateFieldRank(fieldA) - evaluateFieldRank(fieldB);
+
+    return unsortedColumnDefs.sort(sortColumnDefs);
+  }, [types]);
 
   const autoSizeStrategy = { type: "fitCellContents" };
 
@@ -125,7 +214,7 @@ function App() {
 
   return (
     <>
-      <h1 className="display-4">Program Review</h1>
+      <h1 className="display-4">Program Review 2024-2025</h1>
       <div
         className="ag-theme-quartz" // applying the Data Grid theme
         style={{ height: 500 }} // the Data Grid will fill the size of the parent container
@@ -133,8 +222,8 @@ function App() {
         <AgGridReact
           autoSizeStrategy={autoSizeStrategy}
           onBodyScrollEnd={onBodyScrollEnd}
+          rowData={rowDataCorrected}
           columnDefs={columnDefs}
-          rowData={rowData}
         />
       </div>
     </>
