@@ -2,9 +2,11 @@ import "ag-grid-community/styles/ag-grid.css";
 import { AgGridReact } from "ag-grid-react";
 import { csv } from "d3-fetch"; // Mandatory CSS required by the Data Grid
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the Data Grid
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { writeFile, utils } from "xlsx";
 
 import { isStringNumeric } from "./isNumeric";
+import { CSVTo2DArray } from "./CSVTo2DArray";
 import { usePromise } from "./usePromise";
 
 const helpers = {
@@ -138,7 +140,9 @@ const fieldsRanked = [
   "F2F and Distance Learning",
 ];
 
-function App() {
+export default function App() {
+  const gridRef = useRef();
+
   const rowData = usePromise(promise);
 
   const rowDataCorrected = useMemo(
@@ -214,8 +218,17 @@ function App() {
   const onBodyScrollEnd = (e) => e.api.autoSizeAllColumns();
 
   return (
-    <>
-      <h1 className="display-4">Program Review 2024-2025</h1>
+    <div className="d-flex flex-column gap-3">
+      <div className="d-flex gap-3 align-items-center">
+        <div className="display-3 lh-1">Program Review 2024-2025</div>
+        <button
+          className="btn btn-success bg-gradient shadow-sm fs-3"
+          onClick={() => exportGridAsExcel({ gridRef })}
+          type="button"
+        >
+          <i className="bi bi-file-earmark-excel-fill"></i>
+        </button>
+      </div>
       <div
         className="ag-theme-quartz" // applying the Data Grid theme
         style={{ height: 500 }} // the Data Grid will fill the size of the parent container
@@ -225,10 +238,31 @@ function App() {
           onBodyScrollEnd={onBodyScrollEnd}
           rowData={rowDataCorrected}
           columnDefs={columnDefs}
+          ref={gridRef}
         />
       </div>
-    </>
+    </div>
   );
 }
 
-export default App;
+const exportGridAsExcel = ({
+  worksheetName = "Programs",
+  fileName = "ProgramReview",
+  gridRef,
+}) => {
+  const gridApi = gridRef.current.api;
+
+  const { getDataAsCsv } = gridApi;
+
+  const dataAsCsv = getDataAsCsv();
+
+  const twoDimensionalArray = CSVTo2DArray(dataAsCsv);
+
+  const worksheet = utils.json_to_sheet(twoDimensionalArray);
+
+  const workbook = utils.book_new();
+
+  utils.book_append_sheet(workbook, worksheet, worksheetName);
+
+  writeFile(workbook, `${fileName}.xlsx`, { compression: true });
+};
