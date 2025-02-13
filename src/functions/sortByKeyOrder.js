@@ -5,5 +5,5 @@ export const sortByKeyOrder = (array, order, field = "field") => {
   const sortFn = ({ [field]: fieldA }, { [field]: fieldB }) =>
     evaluateFieldRank(fieldA) - evaluateFieldRank(fieldB);
 
-  return array.sort(sortFn);
+  return [...array].sort(sortFn);
 };

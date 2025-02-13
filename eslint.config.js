@@ -19,6 +19,8 @@ export default [
         { allowConstantExport: true },
       ],
       "react/jsx-no-target-blank": "off",
+      "no-irregular-whitespace": "warn",
+      "no-unused-vars": "warn",
     },
     languageOptions: {
       parserOptions: {
