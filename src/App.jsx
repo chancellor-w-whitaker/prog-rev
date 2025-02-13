@@ -1,65 +1,32 @@
 import "ag-grid-community/styles/ag-grid.css";
 import { AgGridReact } from "ag-grid-react";
-import { csv } from "d3-fetch"; // Mandatory CSS required by the Data Grid
-import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the Data Grid
+import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useMemo, useRef } from "react";
-import { writeFile, utils } from "xlsx";
 
-import { isStringNumeric } from "./isNumeric";
-import { CSVTo2DArray } from "./CSVTo2DArray";
+import { parseNumericStrings } from "./functions/parseNumericStrings";
+import { getTypes } from "./functions/getTypes";
+import { exportGridAsExcel } from "./functions/exportGridAsExcel";
+import { onBodyScrollEnd } from "./functions/onBodyScrollEnd";
+import { autoSizeStrategy } from "./constants/autoSizeStrategy";
+import { transformData } from "./evan/transformData";
 import { usePromise } from "./usePromise";
 
-const helpers = {
-  headerValueGetter: ({ colDef: { field } }) => {
-    if (field.startsWith("Fall 202")) return `${field} Enrollment`;
+const leftAlignedNumericColumns = ["Program ID", "CIP"];
 
-    if (field === "Metrics Met") return "Metrics Total";
+const correctSocialWorkReviewType = "Expedited Review";
 
-    if (["20-21", "21-22", "22-23"].includes(field)) {
-      return `${field} Degrees`;
-    }
+const pinnedField = "Program Title";
 
-    return field;
-  },
-  valueGetter: ({ colDef: { field }, data }) => {
-    if (field === "Review Type" && data["Program Title"] === "Social Work") {
-      return "Expedited Review";
-    }
-    return data[field];
-  },
-  filterColumnDefs: ({ field }) =>
-    !["Review Year", "Fall 2020", "1920"].includes(field),
-  defaultSort: (field) => (field === "Program Title" ? "asc" : null),
-  filterRowData: (row) => row["Program Title"] !== "Honors Program",
-  leftAlignedNumericColumns: ["Program ID", "CIP"],
-  promise: csv("data/Final.csv"),
-  pinnedField: "Program Title",
-};
+const sortProgramTitleAscByDefault = (field) =>
+  field === "Program Title" ? "asc" : null;
 
-const {
-  leftAlignedNumericColumns,
-  headerValueGetter,
-  filterColumnDefs,
-  filterRowData,
-  pinnedField,
-  valueGetter,
-  defaultSort,
-  promise,
-} = helpers;
+const shouldFixSocialWorkReviewType = ({ field, data }) =>
+  field === "Review Type" && data["Program Title"] === "Social Work";
 
-const stringToNumber = (string = "") => Number(string);
+const filterByHonorsProgram = (row) =>
+  row["Program Title"] !== "Honors Program";
 
-const parseNumericStrings = (rowData) =>
-  (Array.isArray(rowData) ? rowData : []).map((row) =>
-    Object.fromEntries(
-      Object.entries(row).map(([key, value]) => [
-        key,
-        isStringNumeric(value) ? stringToNumber(value) : value,
-      ])
-    )
-  );
-
-const customTypeEvaluator = (value, field) => {
+const evaluateValueType = (value, field) => {
   if (typeof value === "string" && value.includes("%")) {
     return "number";
   }
@@ -71,168 +38,86 @@ const customTypeEvaluator = (value, field) => {
   return typeof value;
 };
 
-const getTypes = (rowData, typeEvaluator = (value) => typeof value) => {
-  const types = {};
+const helpers = {
+  valueGetter: ({ colDef: { field }, data }) => {
+    if (shouldFixSocialWorkReviewType({ field, data })) {
+      return correctSocialWorkReviewType;
+    }
 
-  (Array.isArray(rowData) ? rowData : []).forEach((row) => {
-    Object.entries(row).forEach(([field, value]) => {
-      if (!(field in types)) types[field] = {};
-
-      const object = types[field];
-
-      const type = typeEvaluator(value, field);
-
-      if (!(type in object)) object[type] = 0;
-
-      object[type]++;
-    });
-  });
-
-  return Object.fromEntries(
-    Object.entries(types).map(([field, object]) => [
-      field,
-      Object.keys(object).sort(
-        (typeA, typeB) => object[typeB] - object[typeA]
-      )[0],
-    ])
-  );
+    return data[field];
+  },
+  defaultSort: sortProgramTitleAscByDefault,
+  filterRowData: filterByHonorsProgram,
 };
 
-const replaceItem = (array, oldItem, newItem) => {
-  const index = array.indexOf(oldItem);
+const { filterRowData, valueGetter, defaultSort } = helpers;
 
-  if (index !== -1) {
-    return [...array.slice(0, index), newItem, ...array.slice(index + 1)];
-  }
-};
+const initializeColumnDefs = (types) =>
+  Object.entries(types).map(([field, type]) => ({
+    type: type === "number" ? "rightAligned" : null,
+    pinned: field === pinnedField,
+    sort: defaultSort(field),
+    lockPosition: true,
+    lockVisible: true,
+    valueFormatter: ({ value }) =>
+      type === "number" ? value.toLocaleString() : value,
+    valueGetter,
+    field,
+  }));
 
-const isMetricColumn = (field) =>
-  !isRatioColumn(field) && !fieldsRanked.includes(field);
+const url = "data/data.json";
 
-const isRatioColumn = (field) =>
-  field.toLowerCase().split(" ").includes("ratio") &&
-  field.toLowerCase() !== "ratio";
+const promise = fetch(url).then((response) => response.json());
 
-const fieldsRanked = [
-  "Program Title",
-  "Degree Designation",
-  "Review Type",
-  "Metrics Met",
-  "College",
-  "Program ID",
-  "EKU Program Code",
-  "CIP",
-  "Level",
-  "METRIC COLUMNS",
-  "Fall 2021",
-  "Fall 2022",
-  "Fall 2023",
-  "Enrollment Avg % Change",
-  "Enrollment Minimum",
-  "20-21",
-  "21-22",
-  "22-23",
-  "Degree Avg % Change",
-  "Degree Minimum",
-  "RATIO COLUMNS",
-  "100% F2F",
-  "100% Distance Learning",
-  "F2F and Distance Learning",
-];
-
+// search box
 export default function App() {
   const gridRef = useRef();
 
-  const rowData = usePromise(promise);
+  const data = usePromise(promise);
+
+  const rowData = useMemo(
+    () => (data ? transformData(data.Data, data.Labels) : []),
+    [data]
+  );
 
   const rowDataCorrected = useMemo(
-    () => parseNumericStrings(rowData).filter(filterRowData),
+    () =>
+      parseNumericStrings(rowData, leftAlignedNumericColumns).filter(
+        filterRowData
+      ),
     [rowData]
   );
 
   const types = useMemo(
-    () => getTypes(rowDataCorrected, customTypeEvaluator),
+    () => getTypes(rowDataCorrected, evaluateValueType),
     [rowDataCorrected]
   );
 
-  const columnDefs = useMemo(() => {
-    const easyLeftAligned = new Set([
-      "Program Title",
-      "Degree Designation",
-      "Review Type",
-      "College",
-      "Program ID",
-      "EKU Program Code",
-      "CIP",
-      "Level",
-    ]);
-
-    const unsortedColumnDefs = Object.entries(types)
-      .map(([field]) => ({
-        type: !easyLeftAligned.has(field) ? "rightAligned" : null,
-        pinned: field === pinnedField,
-        sort: defaultSort(field),
-        lockPosition: true,
-        lockVisible: true,
-        headerValueGetter,
-        valueGetter,
-        field,
-      }))
-      .filter(filterColumnDefs);
-
-    const ratioColumns = unsortedColumnDefs
-      .filter(({ field }) => isRatioColumn(field))
-      .map(({ field }) => field);
-
-    const metricColumns = unsortedColumnDefs
-      .filter(({ field }) => isMetricColumn(field))
-      .map(({ field }) => field);
-
-    const includesRatioColumns = replaceItem(
-      fieldsRanked,
-      "RATIO COLUMNS",
-      ratioColumns
-    );
-
-    const includesMetricColumns = replaceItem(
-      includesRatioColumns,
-      "METRIC COLUMNS",
-      metricColumns
-    );
-
-    const fieldsReranked = includesMetricColumns.flat();
-
-    const evaluateFieldRank = (field) =>
-      fieldsReranked.includes(field)
-        ? fieldsReranked.indexOf(field)
-        : Number.MAX_SAFE_INTEGER;
-
-    const sortColumnDefs = ({ field: fieldA }, { field: fieldB }) =>
-      evaluateFieldRank(fieldA) - evaluateFieldRank(fieldB);
-
-    return unsortedColumnDefs.sort(sortColumnDefs);
-  }, [types]);
-
-  const autoSizeStrategy = { type: "fitCellContents" };
-
-  const onBodyScrollEnd = (e) => e.api.autoSizeAllColumns();
+  const columnDefs = useMemo(() => initializeColumnDefs(types), [types]);
 
   return (
     <div className="d-flex flex-column gap-3">
       <div className="d-flex gap-3 align-items-center">
-        <div className="display-3 lh-1">Program Review 2024-2025</div>
+        <div className="display-4 lh-1">Program Review 2024-2025</div>
         <button
-          className="btn btn-success bg-gradient shadow-sm fs-3"
+          className="btn btn-success bg-gradient shadow-sm fs-3 d-flex align-items-center"
           onClick={() => exportGridAsExcel({ gridRef })}
           type="button"
         >
-          <i className="bi bi-file-earmark-excel-fill"></i>
+          ​
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={16}
+            height={16}
+            fill="currentColor"
+            className="bi bi-file-earmark-arrow-down-fill"
+            viewBox="0 0 16 16"
+          >
+            <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0" />
+          </svg>
         </button>
       </div>
-      <div
-        className="ag-theme-quartz" // applying the Data Grid theme
-        style={{ height: 500 }} // the Data Grid will fill the size of the parent container
-      >
+      <div className="ag-theme-quartz" style={{ height: 500 }}>
         <AgGridReact
           autoSizeStrategy={autoSizeStrategy}
           onBodyScrollEnd={onBodyScrollEnd}
@@ -244,25 +129,3 @@ export default function App() {
     </div>
   );
 }
-
-const exportGridAsExcel = ({
-  worksheetName = "Programs",
-  fileName = "ProgramReview",
-  gridRef,
-}) => {
-  const gridApi = gridRef.current.api;
-
-  const { getDataAsCsv } = gridApi;
-
-  const dataAsCsv = getDataAsCsv();
-
-  const twoDimensionalArray = CSVTo2DArray(dataAsCsv);
-
-  const worksheet = utils.json_to_sheet(twoDimensionalArray);
-
-  const workbook = utils.book_new();
-
-  utils.book_append_sheet(workbook, worksheet, worksheetName);
-
-  writeFile(workbook, `${fileName}.xlsx`, { compression: true });
-};
