@@ -48,3 +48,7 @@ body {
 [data-bs-target="#fullscreenWindow"] {
   display: none !important;
 }
+
+.center-ag-header-cell-label .ag-header-cell-label {
+  justify-content: center;
+}

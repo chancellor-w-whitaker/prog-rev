@@ -20,6 +20,7 @@ export default [
       ],
       "react/jsx-no-target-blank": "off",
       "no-irregular-whitespace": "warn",
+      "react/prop-types": "off",
       "no-unused-vars": "warn",
     },
     languageOptions: {

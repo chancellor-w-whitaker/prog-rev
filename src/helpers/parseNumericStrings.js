@@ -1,5 +1,5 @@
-import { isStringNumeric } from "./isNumeric";
 import { stringToNumber } from "./stringToNumber";
+import { isStringNumeric } from "./isNumeric";
 
 export const parseNumericStrings = (rowData, exceptions = []) =>
   (Array.isArray(rowData) ? rowData : []).map((row) =>

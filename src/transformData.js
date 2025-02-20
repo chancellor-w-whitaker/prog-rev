@@ -187,10 +187,9 @@ export const transformData = (data, labels) => {
 
   return loop(data).map((row) =>
     Object.fromEntries(
-      Object.entries(row).map(([key, value]) => [
-        key in labels ? labels[key] : key,
-        value,
-      ])
+      Object.entries(row)
+        .filter(([key]) => !["ENR04", "DEG04"].includes(key))
+        .map(([key, value]) => [key in labels ? labels[key] : key, value])
     )
   );
 };
