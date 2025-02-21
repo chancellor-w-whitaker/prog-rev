@@ -1,10 +1,17 @@
-import { useDeferredValue, useEffect, useState, useMemo, useRef } from "react";
+import {
+  useDeferredValue,
+  useCallback,
+  useState,
+  useMemo,
+  useRef,
+  memo,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 
+import { initializeColumnDefs } from "./logic/initializeColumnDefs.jsx";
+import { useElementDimensions } from "./hooks/useElementDimensions.jsx";
 import { filterByHonorsProgram } from "./logic/filterByHonorsProgram";
-import { initializeColumnDefs } from "./logic/initializeColumnDefs";
 import { exportGridAsExcel } from "./helpers/exportGridAsExcel";
-import { autoSizeStrategy } from "./constants/autoSizeStrategy";
 import { sortColumnDefs } from "./logic/sortColumnDefs";
 import { usePrevious } from "./hooks/usePrevious";
 import { transformData } from "./transformData";
@@ -30,6 +37,37 @@ const evaluateValueType = (value) => {
 
 const promise = fetch(url).then((response) => response.json());
 
+// render words (don't render in grid, render somewhere offscreen)
+// would there still be performance concerns with large data?
+// O(N^2) (10,000 rows of 10 values each)
+// measure words
+// set column widths based on longest measured word
+
+const Offscreen = memo(({ style, ...props }) => {
+  return (
+    <div {...props} style={{ position: "fixed", left: 5000, ...style }}></div>
+  );
+});
+
+Offscreen.displayName = "Offscreen";
+
+const DynamicComponent = memo(({ updateColumnWidths, children, field }) => {
+  const { dimensions, ref } = useElementDimensions();
+
+  // const { height, width, x, y } = dimensions ?? {};
+  const { width } = dimensions ?? {};
+
+  updateColumnWidths({ field, width });
+
+  return (
+    <span style={{ width: "fit-content" }} className="fs-6" ref={ref}>
+      {children}
+    </span>
+  );
+});
+
+DynamicComponent.displayName = "DynamicComponent";
+
 export default function App(resources) {
   const { useDropdown, Dropdown, Wrapper } = resources;
 
@@ -45,6 +83,20 @@ export default function App(resources) {
     [data]
   );
 
+  const distinctValues = useMemo(() => {
+    const store = {};
+
+    rowData.forEach((row) =>
+      Object.keys(row).forEach((key) => {
+        if (!(key in store)) store[key] = new Set([key]);
+
+        store[key].add(row[key]);
+      })
+    );
+
+    return store;
+  }, [rowData]);
+
   const allColleges = useMemo(() => getEvery(collegeKey, rowData), [rowData]);
 
   const allReviewTypes = useMemo(
@@ -54,7 +106,53 @@ export default function App(resources) {
 
   const types = useMemo(() => getTypes(rowData, evaluateValueType), [rowData]);
 
-  const columnDefs = useMemo(() => initializeColumnDefs(types), [types]);
+  // store max value width & field width so you can compute wrapping measurement
+  const [columnWidths, setColumnWidths] = useState();
+
+  const initialColumnWidths = useMemo(
+    () => Object.fromEntries(Object.keys(types).map((key) => [key, 0])),
+    [types]
+  );
+
+  const updateColumnWidths = useCallback(
+    ({ field, width }) =>
+      setColumnWidths((colWidths) =>
+        width > colWidths[field]
+          ? Object.fromEntries(
+              Object.entries(colWidths).map((entry) =>
+                entry[0] === field ? [field, width] : entry
+              )
+            )
+          : colWidths
+      ),
+    []
+  );
+
+  usePrevious(types, () => setColumnWidths(initialColumnWidths));
+
+  const columnLengths = useMemo(() => {
+    const lengths = {};
+
+    rowData.forEach((row) => {
+      Object.keys(row).forEach((key) => {
+        if (!(key in lengths)) lengths[key] = [];
+
+        lengths[key].push(`${row[key]}`.length);
+      });
+    });
+
+    return Object.fromEntries(
+      Object.entries(lengths).map(([field, array]) => [
+        field,
+        [...array].sort((a, b) => b - a),
+      ])
+    );
+  }, [rowData]);
+
+  const columnDefs = useMemo(
+    () => initializeColumnDefs(types, columnWidths),
+    [types, columnWidths]
+  );
 
   const sortedColumnDefs = useMemo(
     () => sortColumnDefs(columnDefs),
@@ -131,6 +229,12 @@ export default function App(resources) {
 
   // usePrevious(filteredRowData, () => gridRef.api?.autoSizeAllColumns());
 
+  console.log(columnWidths);
+
+  // once columnWidths checks every distinct value, can remove offscreen component
+
+  // console.log(distinctValues);
+
   return (
     <Wrapper
       toolbar={
@@ -145,17 +249,69 @@ export default function App(resources) {
     >
       <div className="ag-theme-quartz" style={{ height: 500 }}>
         <AgGridReact
-          onModelUpdated={(e) => e.api.autoSizeAllColumns()}
-          // defaultColDef={headerWrappingDef}
-          autoSizeStrategy={autoSizeStrategy}
+          defaultColDef={
+            {
+              // autoHeaderHeight: true, // Adjust Cell Height to Fit Wrapped Text
+              // wrapHeaderText: true, // Wrap Text
+              // initialWidth: 200, // Optional: Set a default size
+              // resizable: true, // Enable resizing
+            }
+          }
+          // onModelUpdated={(e) => e.api.autoSizeAllColumns()}
+          // suppressColumnVirtualisation
+          // className="azeret-mono fw-bold"
+          // autoSizeStrategy={autoSizeStrategy}
           quickFilterText={searchValue}
+          // defaultColDef={headerWrappingDef}
           columnDefs={sortedColumnDefs}
-          suppressColumnVirtualisation
           // suppressRowVirtualisation
           rowData={filteredRowData}
+          className="fs-6 poppins"
           ref={gridRef}
         />
       </div>
+      {/* <Offscreen>
+        {Object.keys(distinctValues).map((field) => (
+          <DynamicComponent
+            updateColumnWidths={updateColumnWidths}
+            key={`${field}`}
+            field={field}
+          >
+            {field}
+          </DynamicComponent>
+        ))}
+        {Object.entries(distinctValues).map(([field, set]) =>
+          [...set].map((value) => (
+            <DynamicComponent
+              updateColumnWidths={updateColumnWidths}
+              key={`${field}-${value}`}
+              field={field}
+            >
+              {value}
+            </DynamicComponent>
+          ))
+        )}
+      </Offscreen> */}
+      {Object.keys(distinctValues).map((field) => (
+        <DynamicComponent
+          updateColumnWidths={updateColumnWidths}
+          key={`${field}`}
+          field={field}
+        >
+          {field}
+        </DynamicComponent>
+      ))}
+      {Object.entries(distinctValues).map(([field, set]) =>
+        [...set].map((value) => (
+          <DynamicComponent
+            updateColumnWidths={updateColumnWidths}
+            key={`${field}-${value}`}
+            field={field}
+          >
+            {value}
+          </DynamicComponent>
+        ))
+      )}
     </Wrapper>
   );
 }

@@ -52,3 +52,68 @@ body {
 .center-ag-header-cell-label .ag-header-cell-label {
   justify-content: center;
 }
+
+.victor-mono {
+  font-family: "Victor Mono", serif;
+  font-optical-sizing: auto;
+  /* font-weight: <weight>; */
+  font-style: normal;
+}
+
+.inconsolata {
+  font-family: "Inconsolata", serif;
+  font-optical-sizing: auto;
+  /* font-weight: <weight>; */
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.roboto-mono {
+  font-family: "Roboto Mono", serif;
+  font-optical-sizing: auto;
+  /* font-weight: <weight>; */
+  font-style: normal;
+}
+
+.anonymous-pro-regular {
+  font-family: "Anonymous Pro", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.anonymous-pro-bold {
+  font-family: "Anonymous Pro", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.anonymous-pro-regular-italic {
+  font-family: "Anonymous Pro", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.anonymous-pro-bold-italic {
+  font-family: "Anonymous Pro", serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.reddit-mono {
+  font-family: "Reddit Mono", serif;
+  font-optical-sizing: auto;
+  /* font-weight: <weight>; */
+  font-style: normal;
+}
+
+.whois {
+  font-family: "Whois", sans-serif;
+}
+
+.azeret-mono {
+  font-family: "Azeret Mono", sans-serif;
+}
+
+.poppins {
+  font-family: "Poppins", sans-serif;
+}

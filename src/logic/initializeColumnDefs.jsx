@@ -19,7 +19,13 @@ const gridHelpers = {
 
 const { valueGetter, defaultSort } = gridHelpers;
 
-export const initializeColumnDefs = (types) =>
+const spaceWidth = 8;
+
+const cellPadding = 50;
+
+const fieldMaxWidth = 200;
+
+export const initializeColumnDefs = (types, widths) =>
   Object.entries(types).map(([field, type]) => ({
     valueFormatter: ({ value }) =>
       type === "number"
@@ -32,6 +38,8 @@ export const initializeColumnDefs = (types) =>
         `bg-${getFieldShade(colDef)}-subtle`,
         type === "number" ? "text-end" : "text-start",
       ].join(" "),
+    width:
+      widths && widths[field] ? Math.ceil(widths[field]) + cellPadding : null,
     type: type === "number" ? "rightAligned" : null,
     headerClass: "center-ag-header-cell-label",
     pinned: field === pinnedField,
@@ -41,3 +49,30 @@ export const initializeColumnDefs = (types) =>
     valueGetter,
     field,
   }));
+
+const getWidth = (x) => x * spaceWidth + cellPadding;
+
+const reduceMarginally = (one, two) => {
+  const times = Math.floor(one / two);
+
+  const result = two * times;
+
+  let iterator = result;
+  let best;
+
+  while (!best) {
+    const iterated = iterator - 1;
+
+    if (
+      iterated > Math.ceil(one / 1.5) &&
+      getWidth(iterated) > getWidth(Math.ceil(one / 1.5)) &&
+      iterated > two
+    ) {
+      iterator = iterated;
+    } else {
+      best = iterator;
+    }
+  }
+
+  return best;
+};
