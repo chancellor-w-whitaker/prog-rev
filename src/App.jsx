@@ -1,6 +1,7 @@
 import {
   useDeferredValue,
   useCallback,
+  useEffect,
   useState,
   useMemo,
   useRef,
@@ -57,7 +58,9 @@ const DynamicComponent = memo(({ updateColumnWidths, children, field }) => {
   // const { height, width, x, y } = dimensions ?? {};
   const { width } = dimensions ?? {};
 
-  updateColumnWidths({ field, width });
+  useEffect(() => {
+    updateColumnWidths({ field, width });
+  }, [field, width, updateColumnWidths]);
 
   return (
     <div style={{ width: "fit-content" }} className="fs-6" ref={ref}>
@@ -129,25 +132,6 @@ export default function App(resources) {
   );
 
   usePrevious(types, () => setColumnWidths(initialColumnWidths));
-
-  const columnLengths = useMemo(() => {
-    const lengths = {};
-
-    rowData.forEach((row) => {
-      Object.keys(row).forEach((key) => {
-        if (!(key in lengths)) lengths[key] = [];
-
-        lengths[key].push(`${row[key]}`.length);
-      });
-    });
-
-    return Object.fromEntries(
-      Object.entries(lengths).map(([field, array]) => [
-        field,
-        [...array].sort((a, b) => b - a),
-      ])
-    );
-  }, [rowData]);
 
   const columnDefs = useMemo(
     () => initializeColumnDefs(types, columnWidths),
@@ -277,7 +261,7 @@ export default function App(resources) {
             key={`${field}`}
             field={field}
           >
-            {field}
+            {`${field}`}
           </DynamicComponent>
         ))}
         {Object.entries(distinctValues).map(([field, set]) =>
@@ -287,7 +271,7 @@ export default function App(resources) {
               key={`${field}-${value}`}
               field={field}
             >
-              {value}
+              {`${value}`}
             </DynamicComponent>
           ))
         )}
