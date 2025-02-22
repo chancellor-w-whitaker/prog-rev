@@ -45,7 +45,7 @@ const promise = fetch(url).then((response) => response.json());
 
 const Offscreen = memo(({ style, ...props }) => {
   return (
-    <div {...props} style={{ position: "fixed", left: 5000, ...style }}></div>
+    <div {...props} style={{ position: "absolute", left: 0, ...style }}></div>
   );
 });
 
@@ -60,9 +60,9 @@ const DynamicComponent = memo(({ updateColumnWidths, children, field }) => {
   updateColumnWidths({ field, width });
 
   return (
-    <span style={{ width: "fit-content" }} className="fs-6" ref={ref}>
+    <div style={{ width: "fit-content" }} className="fs-6" ref={ref}>
       {children}
-    </span>
+    </div>
   );
 });
 
@@ -270,7 +270,7 @@ export default function App(resources) {
           ref={gridRef}
         />
       </div>
-      {/* <Offscreen>
+      <div className="position-fixed pe-none opacity-0">
         {Object.keys(distinctValues).map((field) => (
           <DynamicComponent
             updateColumnWidths={updateColumnWidths}
@@ -291,27 +291,7 @@ export default function App(resources) {
             </DynamicComponent>
           ))
         )}
-      </Offscreen> */}
-      {Object.keys(distinctValues).map((field) => (
-        <DynamicComponent
-          updateColumnWidths={updateColumnWidths}
-          key={`${field}`}
-          field={field}
-        >
-          {field}
-        </DynamicComponent>
-      ))}
-      {Object.entries(distinctValues).map(([field, set]) =>
-        [...set].map((value) => (
-          <DynamicComponent
-            updateColumnWidths={updateColumnWidths}
-            key={`${field}-${value}`}
-            field={field}
-          >
-            {value}
-          </DynamicComponent>
-        ))
-      )}
+      </div>
     </Wrapper>
   );
 }
