@@ -19,6 +19,10 @@ const turnStringNumeric = (string) => {
 const sortStringsNumerically = (a, b) =>
   turnStringNumeric(a) - turnStringNumeric(b);
 
+// const selectFields = ["Review Year", "Review Complete", "Final Recommendation"];
+
+// const isNotSelectField = ({ field }) => !selectFields.includes(field);
+
 export const sortColumnDefs = (columnDefs) => {
   const ratioFields = columnDefs
     .filter(isRatioField)
@@ -35,9 +39,16 @@ export const sortColumnDefs = (columnDefs) => {
     .map(({ field }) => field)
     .sort(sortStringsNumerically);
 
+  const quantify = (condition) => (condition ? 1 : 0);
+
   const metricFields = columnDefs
     .filter(isMetricField)
-    .map(({ field }) => field);
+    .map(({ field }) => field)
+    .sort(
+      (a, b) =>
+        quantify(a.toLowerCase().split(" ").includes("ratio")) -
+        quantify(b.toLowerCase().split(" ").includes("ratio"))
+    );
 
   const modifiedArray1 = insertAfter(
     rankedFields,

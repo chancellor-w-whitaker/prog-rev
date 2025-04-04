@@ -6,5 +6,6 @@ export const primaryFields = [
   "College",
   "Program ID",
   "CIP",
+  "Review Year",
   "Level",
 ];

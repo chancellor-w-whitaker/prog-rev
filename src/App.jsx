@@ -1,24 +1,17 @@
-import {
-  useDeferredValue,
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  memo,
-} from "react";
+import { useCallback, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
+import axios from "axios";
 
 import { initializeColumnDefs } from "./logic/initializeColumnDefs.jsx";
-import { useElementDimensions } from "./hooks/useElementDimensions.jsx";
+import { collegeAbbreviations } from "./logic/collegeAbbreviations.js";
 import { filterByHonorsProgram } from "./logic/filterByHonorsProgram";
 import { exportGridAsExcel } from "./helpers/exportGridAsExcel";
+import { MeasuredCell } from "./components/MeasuredCell.jsx";
 import { sortColumnDefs } from "./logic/sortColumnDefs";
+import { usePolling } from "./hooks/usePolling.jsx";
 import { usePrevious } from "./hooks/usePrevious";
 import { transformData } from "./transformData";
-import { usePromise } from "./hooks/usePromise";
 import { getTypes } from "./helpers/getTypes";
-import { url } from "./constants/url";
 
 const reviewTypeKey = "Review Type";
 
@@ -36,53 +29,95 @@ const evaluateValueType = (value) => {
   return typeof value;
 };
 
-const promise = fetch(url).then((response) => response.json());
-
 // render words (don't render in grid, render somewhere offscreen)
 // would there still be performance concerns with large data?
 // O(N^2) (10,000 rows of 10 values each)
 // measure words
 // set column widths based on longest measured word
 
-const Offscreen = memo(({ style, ...props }) => {
-  return (
-    <div {...props} style={{ position: "absolute", left: 0, ...style }}></div>
+const processRowData = (rows) =>
+  [...rows].filter(filterByHonorsProgram).map((row) =>
+    Object.fromEntries([
+      ...Object.entries(row).map((entry) =>
+        entry[0] === "College"
+          ? [entry[0], collegeAbbreviations[entry[1]]]
+          : entry
+      ),
+      ...[
+        ["Review Year", null],
+        ["Review Complete", null],
+        ["Final Recommendation", null],
+      ].filter(([key]) => !(key in row)),
+    ])
   );
-});
 
-Offscreen.displayName = "Offscreen";
-
-const DynamicComponent = memo(({ updateColumnWidths, children, field }) => {
-  const { dimensions, ref } = useElementDimensions();
-
-  // const { height, width, x, y } = dimensions ?? {};
-  const { width } = dimensions ?? {};
-
-  useEffect(() => {
-    updateColumnWidths({ field, width });
-  }, [field, width, updateColumnWidths]);
-
-  return (
-    <div style={{ width: "fit-content" }} className="fs-6" ref={ref}>
-      {children}
-    </div>
+const fetchData = async () => {
+  const response = await axios.get(
+    `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReviewAll/data/data.json`
   );
-});
-
-DynamicComponent.displayName = "DynamicComponent";
+  return response.data;
+};
 
 export default function App(resources) {
+  const primaryKey = "Program ID";
+
+  const readOnlyEdit = true;
+
+  const getRowId = (params) => String(params.data[primaryKey]);
+
+  const { loading, refetch, data } = usePolling(fetchData, 5000);
+
+  const complementaryPrimaryKey =
+    data &&
+    Object.entries(data.Labels).filter(
+      ([key, value]) => value === primaryKey
+    )[0][0];
+
+  const handleUpdateRecord = async (params) => {
+    await axios.post(
+      `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReviewAll/write_json`,
+      params
+    );
+
+    refetch();
+  };
+
+  const onCellEditRequest = (event) => {
+    const rowId = getRowId(event);
+
+    const newEntry = [event.colDef.field, event.value];
+
+    const originalRecord = data.Data.find(
+      (row) => row[complementaryPrimaryKey] === rowId
+    );
+
+    const newRecord = Object.fromEntries([
+      ...Object.entries(originalRecord),
+      newEntry,
+    ]);
+
+    const writeBack = {
+      Data: data.Data.map((row) =>
+        row[complementaryPrimaryKey] === rowId ? newRecord : row
+      ),
+      Labels: Object.fromEntries(Object.entries(data.Labels)),
+    };
+
+    // console.log(
+    //   writeBack.Data.find((row) => row[complementaryPrimaryKey] === rowId)
+    // );
+
+    handleUpdateRecord(writeBack);
+  };
+
+  const editable = true;
+
   const { useDropdown, Dropdown, Wrapper } = resources;
 
   const gridRef = useRef();
 
-  const data = usePromise(promise);
-
   const rowData = useMemo(
-    () =>
-      (data ? transformData(data.Data, data.Labels) : []).filter(
-        filterByHonorsProgram
-      ),
+    () => processRowData(data ? transformData(data.Data, data.Labels) : []),
     [data]
   );
 
@@ -134,8 +169,12 @@ export default function App(resources) {
   usePrevious(types, () => setColumnWidths(initialColumnWidths));
 
   const columnDefs = useMemo(
-    () => initializeColumnDefs(types, columnWidths),
-    [types, columnWidths]
+    () =>
+      initializeColumnDefs({
+        columnWidths,
+        types,
+      }).map((col) => (editable ? col : { ...col, editable: false })),
+    [types, columnWidths, editable]
   );
 
   const sortedColumnDefs = useMemo(
@@ -180,44 +219,23 @@ export default function App(resources) {
     multiple: true,
   });
 
-  usePrevious(allColleges, () => colleges.handleChange(undefined, false));
-
   const reviewTypes = useDropdown({
     options: allReviewTypes,
     label: reviewTypeKey,
     multiple: true,
   });
 
-  usePrevious(allReviewTypes, () => reviewTypes.handleChange(undefined, false));
-
-  const filterDeps = useMemo(() => {
-    return { reviewTypes, colleges, rowData };
-  }, [rowData, colleges, reviewTypes]);
-
-  const deferredFilterDeps = useDeferredValue(filterDeps);
-
   const filteredRowData = useMemo(() => {
-    return deferredFilterDeps.rowData.filter((row) => {
+    return rowData.filter((row) => {
       const college = row[collegeKey];
 
       const reviewType = row[reviewTypeKey];
 
       return (
-        deferredFilterDeps.colleges.selected.has(college) &&
-        deferredFilterDeps.reviewTypes.selected.has(reviewType)
+        colleges.selected.has(college) && reviewTypes.selected.has(reviewType)
       );
     });
-  }, [deferredFilterDeps]);
-
-  // const deferredFilteredRowData = useDeferredValue(filteredRowData);
-
-  // usePrevious(filteredRowData, () => gridRef.api?.autoSizeAllColumns());
-
-  console.log(columnWidths);
-
-  // once columnWidths checks every distinct value, can remove offscreen component
-
-  // console.log(distinctValues);
+  }, [rowData, colleges, reviewTypes]);
 
   return (
     <Wrapper
@@ -229,7 +247,7 @@ export default function App(resources) {
           {downloadButton}
         </div>
       }
-      heading="Program Review 2024-2025"
+      heading="Program Review 2024 - 2029"
     >
       <div className="ag-theme-quartz" style={{ height: 500 }}>
         <AgGridReact
@@ -241,38 +259,37 @@ export default function App(resources) {
               // resizable: true, // Enable resizing
             }
           }
-          // onModelUpdated={(e) => e.api.autoSizeAllColumns()}
-          // suppressColumnVirtualisation
-          // className="azeret-mono fw-bold"
-          // autoSizeStrategy={autoSizeStrategy}
+          onCellEditRequest={onCellEditRequest}
+          onCellEditingStarted={refetch}
           quickFilterText={searchValue}
-          // defaultColDef={headerWrappingDef}
           columnDefs={sortedColumnDefs}
-          // suppressRowVirtualisation
+          readOnlyEdit={readOnlyEdit}
           rowData={filteredRowData}
           className="fs-6 poppins"
+          getRowId={getRowId}
+          loading={loading}
           ref={gridRef}
         />
       </div>
       <div className="position-fixed pe-none opacity-0">
         {Object.keys(distinctValues).map((field) => (
-          <DynamicComponent
+          <MeasuredCell
             updateColumnWidths={updateColumnWidths}
             key={`${field}`}
             field={field}
           >
             {`${field}`}
-          </DynamicComponent>
+          </MeasuredCell>
         ))}
         {Object.entries(distinctValues).map(([field, set]) =>
           [...set].map((value) => (
-            <DynamicComponent
+            <MeasuredCell
               updateColumnWidths={updateColumnWidths}
               key={`${field}-${value}`}
               field={field}
             >
               {`${value}`}
-            </DynamicComponent>
+            </MeasuredCell>
           ))
         )}
       </div>

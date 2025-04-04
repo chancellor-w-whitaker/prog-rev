@@ -3,8 +3,10 @@ import { sortProgramTitleAscByDefault } from "./sortProgramTitleAscByDefault";
 import { correctSocialWorkReviewType } from "./correctSocialWorkReviewType";
 import { formatPercentage } from "../helpers/formatPercentage";
 import { shouldBePercentage } from "./shouldBePercentage";
+import { textCenteredFields } from "./textCenteredFields";
 import { getFieldShade } from "./getFieldShade";
 import { pinnedField } from "./pinnedField";
+import { fieldDefs } from "./fieldDefs";
 
 const gridHelpers = {
   valueGetter: ({ colDef: { field }, data }) => {
@@ -25,21 +27,29 @@ const cellPadding = 50;
 
 const fieldMaxWidth = 200;
 
-export const initializeColumnDefs = (types, widths) =>
-  Object.entries(types).map(([field, type]) => ({
+export const initializeColumnDefs = ({ columnWidths, types }) => [
+  ...Object.entries(types).map(([field, type]) => ({
+    cellClass: ({ colDef }) =>
+      [
+        `bg-${getFieldShade(colDef)}-subtle`,
+        `text-${
+          textCenteredFields.includes(field)
+            ? "center"
+            : type === "number"
+            ? "end"
+            : "start"
+        }`,
+      ].join(" "),
     valueFormatter: ({ value }) =>
       type === "number"
         ? shouldBePercentage(field)
           ? formatPercentage(value)
           : value.toLocaleString()
         : value,
-    cellClass: ({ colDef }) =>
-      [
-        `bg-${getFieldShade(colDef)}-subtle`,
-        type === "number" ? "text-end" : "text-start",
-      ].join(" "),
     width:
-      widths && widths[field] ? Math.ceil(widths[field]) + cellPadding : null,
+      columnWidths && columnWidths[field]
+        ? Math.ceil(columnWidths[field]) + cellPadding
+        : null,
     type: type === "number" ? "rightAligned" : null,
     headerClass: "center-ag-header-cell-label",
     pinned: field === pinnedField,
@@ -48,7 +58,9 @@ export const initializeColumnDefs = (types, widths) =>
     lockVisible: true,
     valueGetter,
     field,
-  }));
+    ...fieldDefs[field],
+  })),
+];
 
 const getWidth = (x) => x * spaceWidth + cellPadding;
 

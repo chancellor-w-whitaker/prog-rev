@@ -23,6 +23,7 @@ export const transformData = (data, labels) => {
     to_add["Enroll Min"] = EnrollMin(to_add);
     to_add["DA Trend"] = DATrend(to_add);
     to_add["DA Min"] = DAMin(to_add);
+    // overwrites "Y" or "N" with 1 or 0
     to_add["Ratio Met"] = Ratio(to_add);
     to_add["Metrics Met"] = MetricsMet(to_add);
     to_add["Review Type"] = ReviewType(to_add);
@@ -39,8 +40,9 @@ export const transformData = (data, labels) => {
 
   function EnrAvgPerChng(obj) {
     return (
-      (obj["ENR02"] - obj["ENR03"]) / checkZero(obj["ENR03"], 1) +
-      (obj["ENR01"] - obj["ENR03"]) / checkZero(obj["ENR03"], 1)
+      ((obj["ENR02"] - obj["ENR03"]) / checkZero(obj["ENR03"], 1) +
+        (obj["ENR01"] - obj["ENR02"]) / checkZero(obj["ENR02"], 1)) /
+      2
     );
   }
 
@@ -64,21 +66,22 @@ export const transformData = (data, labels) => {
 
   function DegAvgPerChng(obj) {
     return (
-      (obj["DEG02"] - obj["DEG03"]) / checkZero(obj["DEG03"], 1) +
-      (obj["DEG01"] - obj["DEG03"]) / checkZero(obj["DEG03"], 1)
+      ((obj["DEG02"] - obj["DEG03"]) / checkZero(obj["DEG03"], 1) +
+        (obj["DEG01"] - obj["DEG02"]) / checkZero(obj["DEG02"], 1)) /
+      2
     );
   }
 
   function DegMinimum(obj) {
     let Deg;
     if (["UC", "GC"].includes(obj["CPE_DEGREE_CODE"].trim().slice(0, 2))) {
-      Deg = 10;
-    } else if (obj["_100_DL"] == "Y") {
-      Deg = 40;
+      Deg = 3;
+    } else if (obj["_100_DL"] !== "Y") {
+      Deg = 7;
     } else if (obj["LEVL"] == "UG") {
-      Deg = 25;
+      Deg = 10;
     } else {
-      Deg = 20;
+      Deg = 15;
     }
     if (obj["DEG01"] >= Deg) {
       return "Yes";
@@ -87,16 +90,28 @@ export const transformData = (data, labels) => {
     }
   }
 
+  function ratioFn(obj, number) {
+    const n = parseFloat(
+      parseInt(obj[`DEG0${number}`]) / parseInt(obj[`ENR0${number}`])
+    );
+
+    if (typeof n === "number" && (Number.isNaN(n) || !Number.isFinite(n))) {
+      return 0;
+    }
+
+    return n;
+  }
+
   function Ratio3(obj) {
-    return parseFloat(parseInt(obj["DEG03"]) / parseInt(obj["ENR03"]));
+    return ratioFn(obj, 3);
   }
 
   function Ratio2(obj) {
-    return parseFloat(parseInt(obj["DEG02"]) / parseInt(obj["ENR02"]));
+    return ratioFn(obj, 2);
   }
 
   function Ratio1(obj) {
-    return parseFloat(parseInt(obj["DEG01"]) / parseInt(obj["ENR01"]));
+    return ratioFn(obj, 1);
   }
 
   function AvgRatio(obj) {
@@ -184,6 +199,12 @@ export const transformData = (data, labels) => {
       return "Streamlined Review";
     }
   }
+
+  // const row10390 = data.find((row) => row["KPEDS_PROGRAM_ID"] === "10390");
+
+  // console.log("10390", row10390);
+
+  // console.log("labels", labels);
 
   return loop(data).map((row) =>
     Object.fromEntries(
