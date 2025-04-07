@@ -6,12 +6,14 @@ import { initializeColumnDefs } from "./logic/initializeColumnDefs.jsx";
 import { collegeAbbreviations } from "./logic/collegeAbbreviations.js";
 import { filterByHonorsProgram } from "./logic/filterByHonorsProgram";
 import { exportGridAsExcel } from "./helpers/exportGridAsExcel";
+import { useUserIsActive } from "./hooks/useUserIsActive.jsx";
 import { MeasuredCell } from "./components/MeasuredCell.jsx";
 import { sortColumnDefs } from "./logic/sortColumnDefs";
 import { usePolling } from "./hooks/usePolling.jsx";
 import { usePrevious } from "./hooks/usePrevious";
 import { transformData } from "./transformData";
 import { getTypes } from "./helpers/getTypes";
+import { useData } from "./hooks/useData.jsx";
 
 const reviewTypeKey = "Review Type";
 
@@ -58,14 +60,25 @@ const fetchData = async () => {
   return response.data;
 };
 
+// check for user inactive (mouse hasn't moved in 5 minutes)
+
+const sessionUrl =
+  "https://irserver2.eku.edu/Apps/DataPage/PROD/session_reports";
+
 export default function App(resources) {
+  const session = useData(sessionUrl);
+
+  console.log(session);
+
+  const userIsActive = useUserIsActive();
+
   const primaryKey = "Program ID";
 
   const readOnlyEdit = true;
 
   const getRowId = (params) => String(params.data[primaryKey]);
 
-  const { loading, refetch, data } = usePolling(fetchData, 5000);
+  const { loading, refetch, data } = usePolling(fetchData, 5000, userIsActive);
 
   const complementaryPrimaryKey =
     data &&
