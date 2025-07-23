@@ -191,13 +191,26 @@ export const transformData = (data, labels) => {
   }
 
   function ReviewType(obj) {
-    if (obj["Metrics Met"] >= 4) {
-      return "Expedited Review";
-    } else if (obj["Metrics Met"] <= 2) {
-      return "Full Review";
-    } else {
-      return "Streamlined Review";
-    }
+    const x = obj["Metrics Met"];
+
+    if (x >= 4) return "Expedited Review";
+
+    if (x <= 1) return "Full Review";
+
+    return "Streamlined Review";
+
+    // streamlined - 2s & 3s
+
+    // full review - 0s & 1s
+
+    // expedited - >=4s
+    // if (obj["Metrics Met"] >= 4) {
+    //   return "Expedited Review";
+    // } else if (obj["Metrics Met"] <= 2) {
+    //   return "Full Review";
+    // } else {
+    //   return "Streamlined Review";
+    // }
   }
 
   // const row10390 = data.find((row) => row["KPEDS_PROGRAM_ID"] === "10390");

@@ -14,6 +14,10 @@ const gridHelpers = {
       return correctSocialWorkReviewType;
     }
 
+    if (field === "Review Type" && "Original Review Type" in data) {
+      return data["Original Review Type"];
+    }
+
     return data[field];
   },
   defaultSort: sortProgramTitleAscByDefault,

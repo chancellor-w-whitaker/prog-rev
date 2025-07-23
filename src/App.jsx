@@ -6,14 +6,20 @@ import { initializeColumnDefs } from "./logic/initializeColumnDefs.jsx";
 import { collegeAbbreviations } from "./logic/collegeAbbreviations.js";
 import { filterByHonorsProgram } from "./logic/filterByHonorsProgram";
 import { exportGridAsExcel } from "./helpers/exportGridAsExcel";
-import { useUserIsActive } from "./hooks/useUserIsActive.jsx";
+// import { useUserIsActive } from "./hooks/useUserIsActive.jsx";
 import { MeasuredCell } from "./components/MeasuredCell.jsx";
 import { sortColumnDefs } from "./logic/sortColumnDefs";
-import { usePolling } from "./hooks/usePolling.jsx";
+// import { usePolling } from "./hooks/usePolling.jsx";
 import { usePrevious } from "./hooks/usePrevious";
 import { transformData } from "./transformData";
 import { getTypes } from "./helpers/getTypes";
 import { useData } from "./hooks/useData.jsx";
+
+//
+
+// const promise = fetch(url).then((response) => response.json());
+
+// console.log(promise);
 
 const reviewTypeKey = "Review Type";
 
@@ -53,24 +59,85 @@ const processRowData = (rows) =>
     ])
   );
 
-const fetchData = async () => {
-  const response = await axios.get(
-    `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReviewAll/data/data.json`
-  );
-  return response.data;
-};
+// const fetchData = async () => {
+//   const response = await axios.get(
+//     `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReviewAll/data/data.json`
+//   );
+//   return response.data;
+// };
 
 // check for user inactive (mouse hasn't moved in 5 minutes)
 
-const sessionUrl =
-  "https://irserver2.eku.edu/Apps/DataPage/PROD/session_reports";
+// const sessionUrl =
+//   "https://irserver2.eku.edu/Apps/DataPage/PROD/session_reports";
+
+//
+
+// sort on program id
+// make sure columns are always in same order (sort columns alphabetically)
+
+// POST call
+// const backupUrl = createUrl(`backup${selectedYear}`)
+
+// years dropdown
+
+const useDataByYear = () => {
+  const createUrl = (
+    segment,
+    key = "/92Rb1EvwTWhKewXZfME7FRcGXKZ1thJjtuz76zkrxg9WgxMZKercd4gSn7ShiYy3"
+  ) =>
+    `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReview/${segment}${key}`;
+
+  const [selectedYear, setSelectedYear] = useState();
+
+  const updateSelectedYear = (year) => setSelectedYear(year);
+
+  const backupData = async (params) => {
+    await axios.post(createUrl(`backup/${selectedYear}`, ""), params.slice(1));
+  };
+
+  const yearsUrl = createUrl("years");
+
+  const years = useData(yearsUrl);
+
+  if (Array.isArray(years) && years.length > 0 && !selectedYear) {
+    setSelectedYear(years[0]);
+  }
+
+  const dataUrl = selectedYear && createUrl(`data/${selectedYear}`);
+
+  const data = useData(dataUrl);
+
+  return {
+    updateSelectedYear,
+    selectedYear,
+    backupData,
+    data,
+  };
+};
+
+const entirelySortData = (data, primaryKey, numeric = true) => {
+  const keys = [...new Set(data.map(Object.keys).flat())].sort();
+
+  return data
+    .map((row) =>
+      Object.fromEntries(
+        Object.entries(row).sort(
+          ([a], [b]) => keys.indexOf(a) - keys.indexOf(b)
+        )
+      )
+    )
+    .sort(({ [primaryKey]: c }, { [primaryKey]: d }) =>
+      numeric ? Number(c) - Number(d) : c - d
+    );
+};
 
 export default function App(resources) {
-  const session = useData(sessionUrl);
+  // const session = useData(sessionUrl);
 
-  console.log(session);
+  // const reports = [session].filter((element) => element).flat();
 
-  const userIsActive = useUserIsActive();
+  // const userIsActive = useUserIsActive();
 
   const primaryKey = "Program ID";
 
@@ -78,54 +145,72 @@ export default function App(resources) {
 
   const getRowId = (params) => String(params.data[primaryKey]);
 
-  const { loading, refetch, data } = usePolling(fetchData, 5000, userIsActive);
+  // const refetch = () => {};
 
-  const complementaryPrimaryKey =
-    data &&
-    Object.entries(data.Labels).filter(
-      ([key, value]) => value === primaryKey
-    )[0][0];
+  // const { loading, refetch, data } = usePolling(fetchData, 5000, userIsActive);
 
-  const handleUpdateRecord = async (params) => {
-    await axios.post(
-      `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReviewAll/write_json`,
-      params
-    );
+  // const complementaryPrimaryKey =
+  //   data &&
+  //   Object.entries(data.Labels).filter(
+  //     ([key, value]) => value === primaryKey
+  //   )[0][0];
 
-    refetch();
-  };
+  // const handleUpdateRecord = async (params) => {
+  //   await axios.post(
+  //     `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReviewAll/write_json`,
+  //     params
+  //   );
 
-  const onCellEditRequest = (event) => {
-    const rowId = getRowId(event);
+  //   refetch();
+  // };
 
-    const newEntry = [event.colDef.field, event.value];
+  // const onCellEditRequest = (event) => {
+  //   const rowId = getRowId(event);
 
-    const originalRecord = data.Data.find(
-      (row) => row[complementaryPrimaryKey] === rowId
-    );
+  //   const newEntry = [event.colDef.field, event.value];
 
-    const newRecord = Object.fromEntries([
-      ...Object.entries(originalRecord),
-      newEntry,
-    ]);
+  //   const newEntries = [newEntry];
 
-    const writeBack = {
-      Data: data.Data.map((row) =>
-        row[complementaryPrimaryKey] === rowId ? newRecord : row
-      ),
-      Labels: Object.fromEntries(Object.entries(data.Labels)),
-    };
+  //   let removeOriginalReviewType = false;
 
-    // console.log(
-    //   writeBack.Data.find((row) => row[complementaryPrimaryKey] === rowId)
-    // );
+  //   if (event.colDef.field === "Review Complete" && event.value === "Y") {
+  //     newEntries.push(["Original Review Type", event.data["Review Type"]]);
+  //   } else {
+  //     removeOriginalReviewType = true;
+  //   }
 
-    handleUpdateRecord(writeBack);
-  };
+  //   const originalRecord = data.Data.find(
+  //     (row) => row[complementaryPrimaryKey] === rowId
+  //   );
 
-  const editable = true;
+  //   const newRecord = Object.fromEntries([
+  //     ...Object.entries(originalRecord).filter(([field]) =>
+  //       removeOriginalReviewType ? field !== "Original Review Type" : true
+  //     ),
+  //     ...newEntries,
+  //   ]);
+
+  //   const writeBack = {
+  //     Data: data.Data.map((row) =>
+  //       row[complementaryPrimaryKey] === rowId ? newRecord : row
+  //     ),
+  //     Labels: Object.fromEntries(Object.entries(data.Labels)),
+  //   };
+
+  //   handleUpdateRecord(writeBack);
+  // };
+
+  // const correctReport = reports.find(
+  //   (report) => report.report_id === "program_review_all"
+  // );
+
+  // const editable = correctReport ? correctReport.report_edit === "Y" : true;
+
+  const editable = false;
 
   const { useDropdown, Dropdown, Wrapper } = resources;
+
+  const { backupData, data } = useDataByYear();
 
   const gridRef = useRef();
 
@@ -186,7 +271,9 @@ export default function App(resources) {
       initializeColumnDefs({
         columnWidths,
         types,
-      }).map((col) => (editable ? col : { ...col, editable: false })),
+      })
+        .map((col) => (editable ? col : { ...col, editable: false }))
+        .filter(({ field }) => field !== "Original Review Type"),
     [types, columnWidths, editable]
   );
 
@@ -250,14 +337,28 @@ export default function App(resources) {
     });
   }, [rowData, colleges, reviewTypes]);
 
+  const entirelySortedData = useMemo(
+    () => entirelySortData(rowData, primaryKey),
+    [rowData]
+  );
+
+  console.log(entirelySortedData);
+
   return (
     <Wrapper
       toolbar={
         <div className="d-flex gap-2 justify-content-end text-nowrap">
-          <Dropdown {...colleges}></Dropdown>
+          {/* <Dropdown {...colleges}></Dropdown> */}
           <Dropdown {...reviewTypes}></Dropdown>
           {searchBox}
           {downloadButton}
+          <button
+            onClick={() => backupData(entirelySortedData)}
+            className="btn btn-primary"
+            type="button"
+          >
+            Backup grid data
+          </button>
         </div>
       }
       heading="Program Review 2024 - 2029"
@@ -272,15 +373,15 @@ export default function App(resources) {
               // resizable: true, // Enable resizing
             }
           }
-          onCellEditRequest={onCellEditRequest}
-          onCellEditingStarted={refetch}
+          // onCellEditRequest={onCellEditRequest}
+          // onCellEditingStarted={refetch}
           quickFilterText={searchValue}
           columnDefs={sortedColumnDefs}
           readOnlyEdit={readOnlyEdit}
           rowData={filteredRowData}
           className="fs-6 poppins"
           getRowId={getRowId}
-          loading={loading}
+          // loading={loading}
           ref={gridRef}
         />
       </div>
