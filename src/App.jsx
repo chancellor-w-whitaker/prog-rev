@@ -53,9 +53,9 @@ const processRowData = (rows) =>
           : entry
       ),
       ...[
-        ["Review Year", null],
-        ["Review Complete", null],
-        ["Final Recommendation", null],
+        // ["Review Year", null],
+        // ["Review Complete", null],
+        // ["Final Recommendation", null],
       ].filter(([key]) => !(key in row)),
     ])
   );
@@ -81,6 +81,11 @@ const processRowData = (rows) =>
 // const backupUrl = createUrl(`backup${selectedYear}`)
 
 // years dropdown
+
+const displayYear = (year) =>
+  [20, `${year}`.substring(0, 2), " - ", 20, `${year}`.substring(2, 4)].join(
+    ""
+  );
 
 const useYearDropdown = () => {
   const createUrl = (
@@ -119,16 +124,16 @@ const useYearDropdown = () => {
               active={year === selectedYear}
               key={year}
             >
-              {year}
+              {displayYear(selectedYear)}
             </MyDropdownItem>
           ))}
       >
-        Year: {selectedYear}
+        Year: {displayYear(selectedYear)}
       </MyDropdown>
     );
   }, [selectedYear, years]);
 
-  return { createBackup, dropdown, data };
+  return { createBackup, selectedYear, dropdown, data };
 };
 
 const entirelySortData = (data, primaryKey, numeric = true) => {
@@ -146,6 +151,8 @@ const entirelySortData = (data, primaryKey, numeric = true) => {
       numeric ? Number(c) - Number(d) : c - d
     );
 };
+
+// take out review complete & final recommendation
 
 export default function App(resources) {
   // const session = useData(sessionUrl);
@@ -225,7 +232,12 @@ export default function App(resources) {
 
   const { useDropdown, Dropdown, Wrapper } = resources;
 
-  const { dropdown: yearDropdown, createBackup, data } = useYearDropdown();
+  const {
+    dropdown: yearDropdown,
+    createBackup,
+    selectedYear,
+    data,
+  } = useYearDropdown();
 
   const gridRef = useRef();
 
@@ -233,6 +245,8 @@ export default function App(resources) {
     () => processRowData(data ? transformData(data.Data, data.Labels) : []),
     [data]
   );
+
+  console.log(rowData);
 
   const distinctValues = useMemo(() => {
     const store = {};
@@ -357,7 +371,7 @@ export default function App(resources) {
     [rowData]
   );
 
-  console.log(entirelySortedData);
+  // console.log(entirelySortedData);
 
   return (
     <Wrapper
@@ -379,7 +393,7 @@ export default function App(resources) {
           {searchBox}
         </div>
       }
-      heading="Program Review 2024 - 2029"
+      heading={`Program Review ${displayYear(selectedYear)}`}
     >
       <div className="ag-theme-quartz" style={{ height: 500 }}>
         <AgGridReact
