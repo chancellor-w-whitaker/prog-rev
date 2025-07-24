@@ -2,6 +2,7 @@ import { useCallback, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import axios from "axios";
 
+import { MyDropdownItem, MyDropdown } from "./components/MyDropdown.jsx";
 import { initializeColumnDefs } from "./logic/initializeColumnDefs.jsx";
 import { collegeAbbreviations } from "./logic/collegeAbbreviations.js";
 import { filterByHonorsProgram } from "./logic/filterByHonorsProgram";
@@ -81,7 +82,7 @@ const processRowData = (rows) =>
 
 // years dropdown
 
-const useDataByYear = () => {
+const useYearDropdown = () => {
   const createUrl = (
     segment,
     key = "/92Rb1EvwTWhKewXZfME7FRcGXKZ1thJjtuz76zkrxg9WgxMZKercd4gSn7ShiYy3"
@@ -90,9 +91,7 @@ const useDataByYear = () => {
 
   const [selectedYear, setSelectedYear] = useState();
 
-  const updateSelectedYear = (year) => setSelectedYear(year);
-
-  const backupData = async (params) => {
+  const createBackup = async (params) => {
     await axios.post(createUrl(`backup/${selectedYear}`, ""), params.slice(1));
   };
 
@@ -108,12 +107,28 @@ const useDataByYear = () => {
 
   const data = useData(dataUrl);
 
-  return {
-    updateSelectedYear,
-    selectedYear,
-    backupData,
-    data,
-  };
+  const dropdown = useMemo(() => {
+    return (
+      <MyDropdown
+        items={[years]
+          .filter((element) => element)
+          .flat()
+          .map((year) => (
+            <MyDropdownItem
+              onClick={() => setSelectedYear(year)}
+              active={year === selectedYear}
+              key={year}
+            >
+              {year}
+            </MyDropdownItem>
+          ))}
+      >
+        Year: {selectedYear}
+      </MyDropdown>
+    );
+  }, [selectedYear, years]);
+
+  return { createBackup, dropdown, data };
 };
 
 const entirelySortData = (data, primaryKey, numeric = true) => {
@@ -210,7 +225,7 @@ export default function App(resources) {
 
   const { useDropdown, Dropdown, Wrapper } = resources;
 
-  const { backupData, data } = useDataByYear();
+  const { dropdown: yearDropdown, createBackup, data } = useYearDropdown();
 
   const gridRef = useRef();
 
@@ -347,18 +362,21 @@ export default function App(resources) {
   return (
     <Wrapper
       toolbar={
-        <div className="d-flex gap-2 justify-content-end text-nowrap">
-          {/* <Dropdown {...colleges}></Dropdown> */}
-          <Dropdown {...reviewTypes}></Dropdown>
+        <div className="d-flex gap-2 flex-column">
+          <div className="d-flex gap-2 justify-content-start text-nowrap flex-wrap">
+            {yearDropdown}
+            {/* <Dropdown {...colleges}></Dropdown> */}
+            <Dropdown {...reviewTypes}></Dropdown>
+            <button
+              onClick={() => createBackup(entirelySortedData)}
+              className="btn btn-primary"
+              type="button"
+            >
+              Save table
+            </button>
+            {downloadButton}
+          </div>
           {searchBox}
-          {downloadButton}
-          <button
-            onClick={() => backupData(entirelySortedData)}
-            className="btn btn-primary"
-            type="button"
-          >
-            Backup grid data
-          </button>
         </div>
       }
       heading="Program Review 2024 - 2029"

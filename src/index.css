@@ -117,3 +117,11 @@ body {
 .poppins {
   font-family: "Poppins", sans-serif;
 }
+
+.btn .small {
+  font-size: unset;
+}
+
+/* .btn-toolbar .btn {
+  height: 100%;
+} */
