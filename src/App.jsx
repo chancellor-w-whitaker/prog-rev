@@ -87,11 +87,11 @@ const displayYear = (year) =>
     ""
   );
 
+const defaultApiKey =
+  "/92Rb1EvwTWhKewXZfME7FRcGXKZ1thJjtuz76zkrxg9WgxMZKercd4gSn7ShiYy3";
+
 const useYearDropdown = () => {
-  const createUrl = (
-    segment,
-    key = "/92Rb1EvwTWhKewXZfME7FRcGXKZ1thJjtuz76zkrxg9WgxMZKercd4gSn7ShiYy3"
-  ) =>
+  const createUrl = (segment, key = defaultApiKey) =>
     `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReview/${segment}${key}`;
 
   const [selectedYear, setSelectedYear] = useState();
@@ -246,7 +246,7 @@ export default function App(resources) {
     [data]
   );
 
-  console.log(rowData);
+  // console.log(rowData);
 
   const distinctValues = useMemo(() => {
     const store = {};
@@ -366,12 +366,16 @@ export default function App(resources) {
     });
   }, [rowData, colleges, reviewTypes]);
 
-  const entirelySortedData = useMemo(
+  const sortedData = useMemo(
     () => entirelySortData(rowData, primaryKey),
     [rowData]
   );
 
-  // console.log(entirelySortedData);
+  const backupIsValid = Array.isArray(sortedData) && sortedData.length > 0;
+
+  usePrevious(sortedData, () => backupIsValid && createBackup(sortedData));
+
+  // console.log(sortedData);
 
   return (
     <Wrapper
@@ -381,13 +385,13 @@ export default function App(resources) {
             {yearDropdown}
             {/* <Dropdown {...colleges}></Dropdown> */}
             <Dropdown {...reviewTypes}></Dropdown>
-            <button
+            {/* <button
               onClick={() => createBackup(entirelySortedData)}
               className="btn btn-primary"
               type="button"
             >
               Save table
-            </button>
+            </button> */}
             {downloadButton}
           </div>
           {searchBox}
