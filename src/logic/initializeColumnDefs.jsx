@@ -40,15 +40,15 @@ export const initializeColumnDefs = ({ columnWidths, types }) => [
           textCenteredFields.includes(field)
             ? "center"
             : type === "number"
-            ? "end"
-            : "start"
+              ? "end"
+              : "start"
         }`,
       ].join(" "),
     valueFormatter: ({ value }) =>
       type === "number"
         ? shouldBePercentage(field)
           ? formatPercentage(value)
-          : value.toLocaleString()
+          : value?.toLocaleString()
         : value,
     width:
       columnWidths && columnWidths[field]

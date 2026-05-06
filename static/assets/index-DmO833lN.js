@@ -59661,7 +59661,7 @@ const initializeColumnDefs = ({ columnWidths, types }) => [
       `bg-${getFieldShade(colDef)}-subtle`,
       `text-${textCenteredFields.includes(field) ? "center" : type === "number" ? "end" : "start"}`
     ].join(" "),
-    valueFormatter: ({ value }) => type === "number" ? shouldBePercentage(field) ? formatPercentage(value) : value.toLocaleString() : value,
+    valueFormatter: ({ value }) => type === "number" ? shouldBePercentage(field) ? formatPercentage(value) : value == null ? void 0 : value.toLocaleString() : value,
     width: columnWidths && columnWidths[field] ? Math.ceil(columnWidths[field]) + cellPadding : null,
     type: type === "number" ? "rightAligned" : null,
     headerClass: "center-ag-header-cell-label",
@@ -59674,17 +59674,6 @@ const initializeColumnDefs = ({ columnWidths, types }) => [
     ...fieldDefs[field]
   }))
 ];
-const collegeAbbreviations = {
-  "College of Edu & App Human Sci": "EA",
-  "College of Just, Sfty, Mil Sci": "JM",
-  "College of Ltrs, Arts, SocSci": "CL",
-  "College of Justice & Safety": "JM",
-  "College of Arts & Sciences": "CL",
-  "College of Health Sciences": "HS",
-  "College of Business": "CB",
-  "Academic Affairs": "AA",
-  "College of STEM": "ST"
-};
 const filterByHonorsProgram = (row) => row["Program Title"] !== "Honors Program";
 /*! xlsx.js (C) 2013-present SheetJS -- http://sheetjs.com */
 var XLSX = {};
@@ -81476,9 +81465,7 @@ const evaluateValueType = (value) => {
 };
 const processRowData = (rows) => [...rows].filter(filterByHonorsProgram).map(
   (row) => Object.fromEntries([
-    ...Object.entries(row).map(
-      (entry) => entry[0] === "College" ? [entry[0], collegeAbbreviations[entry[1]]] : entry
-    ),
+    ...Object.entries(row).map((entry) => entry),
     ...[
       // ["Review Year", null],
       // ["Review Complete", null],
@@ -81489,7 +81476,7 @@ const processRowData = (rows) => [...rows].filter(filterByHonorsProgram).map(
 const displayYear = (year) => [20, `${year}`.substring(0, 2), " - ", 20, `${year}`.substring(2, 4)].join(
   ""
 );
-const defaultApiKey = "/92Rb1EvwTWhKewXZfME7FRcGXKZ1thJjtuz76zkrxg9WgxMZKercd4gSn7ShiYy3";
+const defaultApiKey = "";
 const useYearDropdown = () => {
   const createUrl = (segment, key = defaultApiKey) => `https://irserver2.eku.edu/Apps/DataPage/PROD/ProgramReview/${segment}${key}`;
   const [selectedYear, setSelectedYear] = reactExports.useState();
@@ -81512,7 +81499,7 @@ const useYearDropdown = () => {
           {
             onClick: () => setSelectedYear(year),
             active: year === selectedYear,
-            children: displayYear(selectedYear)
+            children: displayYear(year)
           },
           year
         )),
@@ -81659,6 +81646,7 @@ function App(resources) {
       toolbar: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2 flex-column", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2 justify-content-start text-nowrap flex-wrap", children: [
           yearDropdown,
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Dropdown, { ...colleges }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Dropdown, { ...reviewTypes }),
           downloadButton
         ] }),

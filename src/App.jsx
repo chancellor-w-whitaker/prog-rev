@@ -47,17 +47,13 @@ const evaluateValueType = (value) => {
 const processRowData = (rows) =>
   [...rows].filter(filterByHonorsProgram).map((row) =>
     Object.fromEntries([
-      ...Object.entries(row).map((entry) =>
-        entry[0] === "College"
-          ? [entry[0], collegeAbbreviations[entry[1]]]
-          : entry
-      ),
+      ...Object.entries(row).map((entry) => entry),
       ...[
         // ["Review Year", null],
         // ["Review Complete", null],
         // ["Final Recommendation", null],
       ].filter(([key]) => !(key in row)),
-    ])
+    ]),
   );
 
 // const fetchData = async () => {
@@ -84,11 +80,10 @@ const processRowData = (rows) =>
 
 const displayYear = (year) =>
   [20, `${year}`.substring(0, 2), " - ", 20, `${year}`.substring(2, 4)].join(
-    ""
+    "",
   );
 
-const defaultApiKey =
-  "/92Rb1EvwTWhKewXZfME7FRcGXKZ1thJjtuz76zkrxg9WgxMZKercd4gSn7ShiYy3";
+const defaultApiKey = "";
 
 const useYearDropdown = () => {
   const createUrl = (segment, key = defaultApiKey) =>
@@ -103,6 +98,13 @@ const useYearDropdown = () => {
   const yearsUrl = createUrl("years");
 
   const years = useData(yearsUrl);
+
+  // const years = useMemo(
+  //   () => (Array.isArray(years1) ? [...years1, "2627"] : years1),
+  //   [years1],
+  // );
+
+  // console.log(years);
 
   if (Array.isArray(years) && years.length > 0 && !selectedYear) {
     setSelectedYear(years[0]);
@@ -124,7 +126,7 @@ const useYearDropdown = () => {
               active={year === selectedYear}
               key={year}
             >
-              {displayYear(selectedYear)}
+              {displayYear(year)}
             </MyDropdownItem>
           ))}
       >
@@ -143,12 +145,12 @@ const entirelySortData = (data, primaryKey, numeric = true) => {
     .map((row) =>
       Object.fromEntries(
         Object.entries(row).sort(
-          ([a], [b]) => keys.indexOf(a) - keys.indexOf(b)
-        )
-      )
+          ([a], [b]) => keys.indexOf(a) - keys.indexOf(b),
+        ),
+      ),
     )
     .sort(({ [primaryKey]: c }, { [primaryKey]: d }) =>
-      numeric ? Number(c) - Number(d) : c - d
+      numeric ? Number(c) - Number(d) : c - d,
     );
 };
 
@@ -243,7 +245,7 @@ export default function App(resources) {
 
   const rowData = useMemo(
     () => processRowData(data ? transformData(data.Data, data.Labels) : []),
-    [data]
+    [data],
   );
 
   // console.log(rowData);
@@ -256,7 +258,7 @@ export default function App(resources) {
         if (!(key in store)) store[key] = new Set([key]);
 
         store[key].add(row[key]);
-      })
+      }),
     );
 
     return store;
@@ -266,7 +268,7 @@ export default function App(resources) {
 
   const allReviewTypes = useMemo(
     () => getEvery(reviewTypeKey, rowData),
-    [rowData]
+    [rowData],
   );
 
   const types = useMemo(() => getTypes(rowData, evaluateValueType), [rowData]);
@@ -276,7 +278,7 @@ export default function App(resources) {
 
   const initialColumnWidths = useMemo(
     () => Object.fromEntries(Object.keys(types).map((key) => [key, 0])),
-    [types]
+    [types],
   );
 
   const updateColumnWidths = useCallback(
@@ -285,12 +287,12 @@ export default function App(resources) {
         width > colWidths[field]
           ? Object.fromEntries(
               Object.entries(colWidths).map((entry) =>
-                entry[0] === field ? [field, width] : entry
-              )
+                entry[0] === field ? [field, width] : entry,
+              ),
             )
-          : colWidths
+          : colWidths,
       ),
-    []
+    [],
   );
 
   usePrevious(types, () => setColumnWidths(initialColumnWidths));
@@ -303,12 +305,12 @@ export default function App(resources) {
       })
         .map((col) => (editable ? col : { ...col, editable: false }))
         .filter(({ field }) => field !== "Original Review Type"),
-    [types, columnWidths, editable]
+    [types, columnWidths, editable],
   );
 
   const sortedColumnDefs = useMemo(
     () => sortColumnDefs(columnDefs),
-    [columnDefs]
+    [columnDefs],
   );
 
   const [searchValue, setSearchValue] = useState("");
@@ -368,7 +370,7 @@ export default function App(resources) {
 
   const sortedData = useMemo(
     () => entirelySortData(rowData, primaryKey),
-    [rowData]
+    [rowData],
   );
 
   const backupIsValid = Array.isArray(sortedData) && sortedData.length > 0;
@@ -383,7 +385,7 @@ export default function App(resources) {
         <div className="d-flex gap-2 flex-column">
           <div className="d-flex gap-2 justify-content-start text-nowrap flex-wrap">
             {yearDropdown}
-            {/* <Dropdown {...colleges}></Dropdown> */}
+            <Dropdown {...colleges}></Dropdown>
             <Dropdown {...reviewTypes}></Dropdown>
             {/* <button
               onClick={() => createBackup(entirelySortedData)}
@@ -440,7 +442,7 @@ export default function App(resources) {
             >
               {`${value}`}
             </MeasuredCell>
-          ))
+          )),
         )}
       </div>
     </Wrapper>
